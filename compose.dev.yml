@@ -1,0 +1,26 @@
+# Solo servicios de desarrollo. La app corre nativa con `pnpm dev`.
+#
+#   docker compose -f compose.dev.yml up -d
+#   docker compose -f compose.dev.yml down       (parar, conservar datos)
+#   docker compose -f compose.dev.yml down -v    (borrar datos)
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

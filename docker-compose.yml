@@ -1,0 +1,31 @@
+# Local development. Runs Postgres only — the app itself runs on the host with
+# `pnpm dev`, which keeps HMR fast and avoids cross-platform node_modules issues.
+# For the production stack see docker-compose.prod.yml.
+
+# Distinct from the production stack's project name so the two can never share
+# a volume if you ever run the prod compose file on this machine.
+# The scaffolding script rewrites this to <project>-dev.
+name: PROJECT_NAME-dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-PROJECT_NAME}
+    ports:
+      # Port is per-project so several stacks can run side by side.
+      # The script picks a free one and writes it to .env.
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d ${POSTGRES_DB:-PROJECT_NAME}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

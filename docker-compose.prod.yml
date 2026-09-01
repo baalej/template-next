@@ -1,0 +1,91 @@
+# Production stack for the VPS.
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Reads secrets from a .env file sitting next to this one (see .env.example).
+# The app listens on 127.0.0.1:3000 only — Caddy terminates TLS in front of it
+# rather than exposing the container port to the internet.
+
+# Pinned so volume names never depend on the directory name. Without this,
+# cloning into a differently-named folder silently creates empty volumes and
+# looks exactly like data loss.
+name: PROJECT_NAME
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+    # Deliberately no `ports:` — Postgres is reachable only over the compose
+    # network, never from the public interface.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot: applies pending Payload migrations, then exits. The app waits for
+  # it to finish successfully before booting.
+  migrate:
+    build:
+      context: .
+      target: migrator
+    restart: 'no'
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  payload:
+    build:
+      context: .
+      target: runner
+      # Build-time because NEXT_PUBLIC_* is inlined, not read at runtime.
+      args:
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:?set NEXT_PUBLIC_SERVER_URL in .env}
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3000:3000'
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-}
+    volumes:
+      - media:/app/media
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  # Terminates TLS and proxies to the app. Nothing else publishes a public port.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+      # HTTP/3. Harmless if the firewall drops it; clients fall back to TCP.
+      - '443:443/udp'
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?set SITE_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - payload
+
+volumes:
+  pgdata:
+  media:
+  # Holds the certificates and the ACME account key. Losing it is not data loss
+  # in the usual sense, but it forces re-issuance on every deploy, and Let's
+  # Encrypt rate-limits duplicate certificates to five per week. Treat it as
+  # something to keep, not a cache.
+  caddy_data:
+  caddy_config:
