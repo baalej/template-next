@@ -3,25 +3,23 @@
 Plantilla para proyectos Next.js + Payload 3 + Postgres, desplegados en un
 VPS con Docker Compose y Caddy.
 
-## Cómo se monta esta plantilla
+## Proyectos nuevos
 
-Estos ficheros se añaden sobre un proyecto generado por Payload:
+Se crean con `new-next <nombre>` (en `~/automation`). El script clona la
+última versión etiquetada, fija el nombre en los compose y en
+`package.json`, genera `.env` con un puerto de Postgres libre, instala
+dependencias, crea la migración inicial y hace el primer commit.
+
+## Cómo se montó esta plantilla
+
+Sobre un proyecto generado por Payload:
 
 ```bash
 pnpm dlx create-payload-app@latest template-next -t blank --db postgres --use-pnpm
-cd template-next
-rm -rf .git
 ```
 
-Luego copia encima: `Dockerfile`, `.dockerignore`, `docker-compose.yml`,
-`docker-compose.prod.yml`, `Caddyfile`, `.env.example` y este README.
-
-Dos ajustes obligatorios:
-
-1. **`next.config.ts`** debe tener `output: 'standalone'`. Sin eso el
-   Dockerfile falla, porque copia `.next/standalone` que no existiría.
-2. **Sustituye `PROJECT_NAME`** en ambos ficheros compose. El script
-   `new-next` lo hace automáticamente.
+Encima van `Dockerfile`, `.dockerignore`, los dos compose, `Caddyfile`,
+`.env.example`, este README y `output: 'standalone'` en `next.config.ts`.
 
 ## Desarrollo
 
@@ -81,6 +79,12 @@ servidor. Caddy responde el reto ACME por el puerto 80; si el DNS no
 apunta todavía, la emisión del certificado falla.
 
 ## Decisiones que conviene no deshacer
+
+**`output: 'standalone'` en `next.config.ts`.** El Dockerfile copia
+`.next/standalone`; sin esa opción no existe y el build falla.
+
+**`public/` existe aunque esté vacío.** El Dockerfile lo copia, y `COPY`
+falla si no está.
 
 **`name:` fijado en los compose.** Sin él, los nombres de volumen dependen
 del directorio: clonar en una carpeta con otro nombre crea volúmenes

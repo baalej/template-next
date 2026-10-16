@@ -1,0 +1,28 @@
+# TLS terminator in front of the Payload container.
+#
+# The domain comes from SITE_DOMAIN in .env. Naming a real domain here is what
+# switches Caddy's automatic HTTPS on: it obtains a Let's Encrypt certificate on
+# first boot and renews it on its own. That requires the A record to already
+# resolve to this server — the ACME challenge is answered over port 80.
+
+# `www` usually has its own A and AAAA records. Without a block of its own Caddy
+# never requests a certificate for it and the handshake fails outright — a
+# browser certificate warning, which is worse than a 404. Redirecting rather
+# than serving both keeps one canonical host, which is also what search engines
+# want. `{uri}` preserves the path.
+www.{$SITE_DOMAIN} {
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}
+
+{$SITE_DOMAIN} {
+	encode zstd gzip
+
+	# `payload` is the Compose service name, resolved on the internal network.
+	# The container listens on 0.0.0.0:3000 (HOSTNAME in the Dockerfile); it is
+	# never published to the public interface.
+	#
+	# Caddy sets X-Forwarded-Proto and X-Forwarded-Host by default, which is how
+	# Payload knows it is being served over HTTPS. That matters because the
+	# config sets no `serverURL` and infers it from the request.
+	reverse_proxy payload:3000
+}

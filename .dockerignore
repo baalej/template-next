@@ -1,0 +1,20 @@
+# Keeps the build context small and free of secrets. node_modules is
+# installed inside the image; a host copy would also be the wrong platform.
+.git
+node_modules
+.next
+media
+
+.env*
+!.env.example
+
+# Not needed to build or run the app
+Caddyfile
+docker-compose*.yml
+README.md
+.claude
+.vscode
+tests
+test-results
+playwright-report
+coverage
