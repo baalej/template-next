@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "skills": {
+    "animation-vocabulary": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/animation-vocabulary/SKILL.md",
+      "computedHash": "d5e9fc6b6b491036e7ce5c6c04ed7124284820c27efa1bcffe5ca4dc2b492a70"
+    },
+    "astack-help": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/astack-help/SKILL.md",
+      "computedHash": "1367ae98f4d61aad6657898ae7756ad651973e853ad2a08d75527473888348b0"
+    },
+    "astack-mode": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/astack-mode/SKILL.md",
+      "computedHash": "8d8e391766746a9bc698f90b275e9368c1eb45d016a3f8b6ab837ea78e48bfd6"
+    },
+    "attack-the-premise": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/attack-the-premise/SKILL.md",
+      "computedHash": "442d61d40c29f1e267ae6604754f835dfe208b5d3d492a5f298a969c51bc6eec"
+    },
+    "blast-radius": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/blast-radius/SKILL.md",
+      "computedHash": "8b0a6ea73385cddccbf393b48f7760a5dc6333b96afdfe8ffbce8b321b009ca6"
+    },
+    "break-the-ui": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/break-the-ui/SKILL.md",
+      "computedHash": "dcff2a0ddaf24c5ae3eab90cf92f41faf509d761a424939de2d25b5ace452e85"
+    },
+    "build-the-lever": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/build-the-lever/SKILL.md",
+      "computedHash": "610c98810b755014845710d209612a0f7707ae693ee4dea755ba9256d2eae9d5"
+    },
+    "code-is-documentation": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/code-is-documentation/SKILL.md",
+      "computedHash": "c67a730c2640d4e76ce0dfa41095474ff5dc40dee960d319952161567aa8a467"
+    },
+    "details-compound": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/details-compound/SKILL.md",
+      "computedHash": "16868eec85886ed302b15f8ebc6019ce6e1ab5fa5c44b22f44df08127b913bef"
+    },
+    "encode-lessons-in-structure": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/encode-lessons-in-structure/SKILL.md",
+      "computedHash": "e1abeee1814a65c5dcb03bac2fd1886414be6414055251fa7f143f489f284919"
+    },
+    "exhaust-the-design-space": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/exhaust-the-design-space/SKILL.md",
+      "computedHash": "fa6cf82a172530ff6575d9333dcf8e3c8343bf29daff1f7b36e7a28ccbe44693"
+    },
+    "explain-the-number": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/explain-the-number/SKILL.md",
+      "computedHash": "b3ea5ceb2cac1d844b77c82d00c47f8bbbf5fdfc2b9b406db3c6bef2f4cb4048"
+    },
+    "foundational-thinking": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/foundational-thinking/SKILL.md",
+      "computedHash": "7df008a818b0486d2083f524da3a644f65ff01bb91eb61ae78f4096fe3659125"
+    },
+    "laziness-protocol": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/laziness-protocol/SKILL.md",
+      "computedHash": "20751612fe8da875808288b50a19fa4c155d08db02e95ca81ebc8f684eff542c"
+    },
+    "log-friction": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/log-friction/SKILL.md",
+      "computedHash": "53fd4f7cff24b2e4720777deaca5cf590a411c02189709cb19e32f6770b86aeb"
+    },
+    "minimize-reader-load": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/minimize-reader-load/SKILL.md",
+      "computedHash": "3dc7d4b64a053d4856e53e5c5d6cb0e1a51cac968d740b25e6761e702a20180d"
+    },
+    "mobile-web": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/mobile-web/SKILL.md",
+      "computedHash": "8cd60354af2a1183650d05f32809084f778325f1bfc2e97859cf232d7cd88c42"
+    },
+    "model-the-domain": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/model-the-domain/SKILL.md",
+      "computedHash": "61ee6a6bd923da316e67c9628dabd352e142869c88844ecf7d72bbf22aa20b14"
+    },
+    "plans-evolve-principles-dont": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/plans-evolve-principles-dont/SKILL.md",
+      "computedHash": "4dd42a1b7ef4ba019e2422913403af99b88d521e2e8367d815754b0c1b6d59e8"
+    },
+    "quality-over-speed": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/quality-over-speed/SKILL.md",
+      "computedHash": "7cfddb0322a11aeb19814875e558d0c8a5d8843e532592641615483eb31da147"
+    },
+    "root-causes-not-symptoms": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/root-causes-not-symptoms/SKILL.md",
+      "computedHash": "e88515f17e891a34f04a21456aa628016268aea4b8b33f05d80a1dd6dda648ac"
+    },
+    "sequence-verifiable-units": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/sequence-verifiable-units/SKILL.md",
+      "computedHash": "0dbaccd93a6fbf265779e17eeccad511bffb16b72da82c65d6630b4c8a281813"
+    },
+    "test-behavior-not-implementation": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/test-behavior-not-implementation/SKILL.md",
+      "computedHash": "537af8cd808642774dcdd5f7c2f9187fc7efdc875638df0c45272cdb3180148a"
+    },
+    "verify-by-eye": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/verify-by-eye/SKILL.md",
+      "computedHash": "90f827805456934410df8ed500cd99f5e2ec10383c4777cc26506823d97a96f7"
+    },
+    "web-motion": {
+      "source": "baalej/skills",
+      "sourceType": "github",
+      "skillPath": "astack/skills/web-motion/SKILL.md",
+      "computedHash": "37f9f017d493e9cb2b9daec29a94211166a38479c57d6e61a30a030f561dd869"
+    }
+  }
+}
