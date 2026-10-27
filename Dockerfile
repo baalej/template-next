@@ -33,6 +33,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # prerendered pages need it too, so it has to be here.
 ARG NEXT_PUBLIC_SERVER_URL=""
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ARG NEXT_PUBLIC_GA_ID=""
+ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 
 # The DATABASE_URL below points nowhere on purpose, and nothing may actually
 # connect to it: there is no database reachable from a build container. Keeping

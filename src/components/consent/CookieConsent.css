@@ -1,0 +1,50 @@
+.cookie-consent {
+  position: fixed;
+  inset: auto 16px 16px;
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 20px;
+
+  font-size: 15px;
+  line-height: 22px;
+  color: rgb(255, 255, 255);
+  background: rgb(24, 24, 24);
+  border: 1px solid rgb(60, 60, 60);
+  border-radius: 8px;
+
+  p {
+    flex: 1 1 280px;
+    margin: 0;
+  }
+}
+
+.cookie-consent__actions {
+  display: flex;
+  gap: 8px;
+
+  button {
+    min-height: 40px;
+    padding: 0 18px;
+
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  /* Gated so a tap on a phone doesn't leave the button stuck filled. */
+  @media (hover: hover) and (pointer: fine) {
+    button:hover {
+      color: rgb(0, 0, 0);
+      background: rgb(255, 255, 255);
+    }
+  }
+}
