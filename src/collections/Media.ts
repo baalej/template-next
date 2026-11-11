@@ -1,6 +1,7 @@
 import type { CollectionConfig, ImageSize } from 'payload'
 
 import { anyone, authenticated } from '@/access'
+import { env } from '@/env'
 import { revalidateOnChange } from '@/lib/revalidate'
 
 // Width-only sizes: the height follows the original's aspect ratio, so nothing
@@ -37,6 +38,7 @@ export const Media: CollectionConfig = {
   ],
   upload: {
     adminThumbnail: 'thumbnail',
+    staticDir: env.MEDIA_DIR,
     imageSizes,
     // An explicit list rather than `image/*`, which would let SVG in. An SVG can
     // carry script, and uploads are served from this site's own origin, so

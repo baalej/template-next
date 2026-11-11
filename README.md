@@ -17,6 +17,7 @@ starts the dev database, applies the migrations and makes the first commit.
 ## Requirements
 
 - Node 24 (`.nvmrc`; `fnm use` or `nvm use`) and pnpm 11 (`corepack enable`)
+- PostgreSQL 17 client tools, for backups (`brew install postgresql@17`)
 - Docker (on macOS, e.g. `colima start`)
 
 ## Development
@@ -115,6 +116,73 @@ docker compose -f docker-compose.prod.yml logs -f payload
 ```
 
 Each container keeps at most 30 MB of logs (3 × 10 MB, rotated).
+
+## Backups
+
+A backup is a single `.tar` file holding the database (a `pg_dump`) and every
+uploaded file. The same file works in any environment: back up production and
+restore it locally to debug with real data, or move a site to a new server.
+
+### Downloading one from the admin
+
+Admins see **Download backup** on the admin dashboard. It streams straight to
+the browser; nothing is stored on the server.
+
+### From the command line
+
+Locally:
+
+```bash
+pnpm backup:create                       # → backups/<site>-backup-<date>.tar
+pnpm backup:restore backups/<file>.tar   # stop `pnpm dev` first
+```
+
+On the VPS, through the migrator image (it has the Payload CLI; the files
+land in `./backups` next to the compose file):
+
+```bash
+docker compose -f docker-compose.prod.yml run --rm migrate pnpm backup:create
+
+docker compose -f docker-compose.prod.yml stop payload
+docker compose -f docker-compose.prod.yml run --rm migrate pnpm backup:restore backups/<file>.tar
+docker compose -f docker-compose.prod.yml start payload
+```
+
+To restore a backup downloaded from the admin, copy it into `./backups` first
+(`scp`).
+
+What a restore does:
+
+1. Asks you to type the database name to confirm.
+2. Unpacks and checks the whole file before touching anything. It refuses a
+   backup whose schema is newer than the code (deploy the newer code first).
+3. Saves the current state as `pre-restore-<…>.tar` next to the backup, so any
+   restore can be undone by restoring that file.
+4. Replaces the database in a single transaction: if anything fails, the
+   database is left exactly as it was.
+5. Replaces the uploads, then applies any migrations newer than the backup.
+
+It needs free disk of about twice the backup's size while it runs.
+
+### Nightly backups
+
+A cron entry on the VPS, keeping the last 14:
+
+```cron
+0 3 * * * cd /path/to/site && docker compose -f docker-compose.prod.yml run --rm -e BACKUP_KEEP=14 migrate pnpm backup:create >> backups/cron.log 2>&1
+```
+
+These stay on the same server, so they protect against mistakes, not against
+losing the server. For that, copy `./backups` elsewhere too (e.g. `rclone` to
+S3 or Backblaze B2).
+
+### Requirements
+
+The backup uses the PostgreSQL client tools, which must be the **same major
+version as the server** (17). A newer `pg_dump` writes files an older
+`pg_restore` can't read, so this keeps every backup restorable everywhere. The
+Docker image includes them. On macOS: `brew install postgresql@17`, which is
+found automatically without changing your PATH.
 
 ## Maintaining this template
 

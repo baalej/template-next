@@ -11,6 +11,7 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { env } from './env'
+import { backupEndpoint } from './lib/backup/endpoint'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -21,7 +22,12 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      // "Download backup" for admins; see lib/backup/.
+      afterDashboard: ['/components/admin/BackupPanel'],
+    },
   },
+  endpoints: [backupEndpoint],
   collections: [Users, Media],
   editor: lexicalEditor(),
   secret: env.PAYLOAD_SECRET,
