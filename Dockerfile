@@ -1,7 +1,9 @@
 # Requires `output: 'standalone'` in next.config.ts.
 # Based on https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 
-FROM node:22-alpine AS base
+# Node 24 is the active LTS line. Keep this, .nvmrc and engines.node in
+# package.json on the same major, so local dev runs what production runs.
+FROM node:24-alpine AS base
 
 # ─────────────────────────────────────────────────────────────
 # Dependencies
@@ -45,9 +47,11 @@ ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 # Payload throws if `secret` is empty while the config is evaluated during the
 # build. These are throwaway placeholders scoped to this RUN only — they are not
 # persisted as image env, and the real values are read from the environment at
-# runtime.
+# runtime. SKIP_ENV_VALIDATION tells src/env.ts not to demand the runtime-only
+# variables (SMTP and so on) here.
 RUN export PAYLOAD_SECRET=build-time-placeholder \
-      DATABASE_URL=postgres://build:build@127.0.0.1:5432/build; \
+      DATABASE_URL=postgres://build:build@127.0.0.1:5432/build \
+      SKIP_ENV_VALIDATION=1; \
     corepack enable pnpm && pnpm run build
 
 
