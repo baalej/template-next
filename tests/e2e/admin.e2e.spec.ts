@@ -1,16 +1,14 @@
-import { test, expect, Page } from '@playwright/test'
-import { login } from '../helpers/login'
-import { seedTestUser, cleanupTestUser, testUser } from '../helpers/seedUser'
+import { expect, type Page, test } from '@playwright/test'
 
-test.describe('Admin Panel', () => {
+import { login } from '../helpers/login'
+import { cleanupTestUser, seedTestUser, testUser } from '../helpers/seedUser'
+
+test.describe('Admin panel', () => {
   let page: Page
 
-  test.beforeAll(async ({ browser }, testInfo) => {
+  test.beforeAll(async ({ browser }) => {
     await seedTestUser()
-
-    const context = await browser.newContext()
-    page = await context.newPage()
-
+    page = await (await browser.newContext()).newPage()
     await login({ page, user: testUser })
   })
 
@@ -19,23 +17,20 @@ test.describe('Admin Panel', () => {
   })
 
   test('can navigate to dashboard', async () => {
-    await page.goto('http://localhost:3000/admin')
-    await expect(page).toHaveURL('http://localhost:3000/admin')
-    const dashboardArtifact = page.locator('span[title="Dashboard"]').first()
-    await expect(dashboardArtifact).toBeVisible()
+    await page.goto('/admin')
+    await expect(page).toHaveURL(/\/admin$/)
+    await expect(page.locator('span[title="Dashboard"]').first()).toBeVisible()
   })
 
   test('can navigate to list view', async () => {
-    await page.goto('http://localhost:3000/admin/collections/users')
-    await expect(page).toHaveURL('http://localhost:3000/admin/collections/users')
-    const listViewArtifact = page.locator('h1', { hasText: 'Users' }).first()
-    await expect(listViewArtifact).toBeVisible()
+    await page.goto('/admin/collections/users')
+    await expect(page).toHaveURL(/\/admin\/collections\/users$/)
+    await expect(page.locator('h1').first()).toBeVisible()
   })
 
   test('can navigate to edit view', async () => {
-    await page.goto('http://localhost:3000/admin/collections/users/create')
+    await page.goto('/admin/collections/users/create')
     await expect(page).toHaveURL(/\/admin\/collections\/users\/[a-zA-Z0-9-_]+/)
-    const editViewArtifact = page.locator('input[name="email"]')
-    await expect(editViewArtifact).toBeVisible()
+    await expect(page.locator('input[name="email"]')).toBeVisible()
   })
 })

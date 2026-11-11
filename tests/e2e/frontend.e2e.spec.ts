@@ -1,20 +1,22 @@
-import { test, expect, Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+
+import { site } from '../../src/lib/site'
 
 test.describe('Frontend', () => {
-  let page: Page
-
-  test.beforeAll(async ({ browser }, testInfo) => {
-    const context = await browser.newContext()
-    page = await context.newPage()
+  test('serves the home page', async ({ page }) => {
+    await page.goto('/')
+    await expect(page).toHaveTitle(site.name)
+    await expect(page.locator('h1').first()).toHaveText(site.name)
   })
 
-  test('can go on homepage', async ({ page }) => {
-    await page.goto('http://localhost:3000')
+  test('answers unknown URLs with a 404', async ({ page }) => {
+    const response = await page.goto('/this-page-does-not-exist')
+    expect(response?.status()).toBe(404)
+  })
 
-    await expect(page).toHaveTitle(/Payload Blank Template/)
-
-    const heading = page.locator('h1').first()
-
-    await expect(heading).toHaveText('Welcome to your new project.')
+  test('sends the security headers', async ({ request }) => {
+    const response = await request.get('/')
+    expect(response.headers()['x-content-type-options']).toBe('nosniff')
+    expect(response.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin')
   })
 })
