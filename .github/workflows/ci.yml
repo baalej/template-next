@@ -1,0 +1,130 @@
+# Checks every pull request and every push to main.
+#
+# Kept lean on purpose: client repos are private, and on the GitHub Free plan
+# every private repo shares one pool of Actions minutes (2,000 a month at the
+# time of writing). A run takes about 3–4 minutes. The e2e suite, which also
+# builds the app, is manual only: Actions → CI → Run workflow → e2e.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+    inputs:
+      e2e:
+        description: Also run the Playwright e2e suite (builds the app, ~5 more minutes)
+        type: boolean
+        default: false
+
+# A newer push to the same branch cancels the run it supersedes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Ends in _test, so the test setup uses it as is (tests/setup/testDatabase.ts).
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/app_test
+  PAYLOAD_SECRET: ci-only-secret
+  SMTP_HOST: localhost
+  SMTP_PORT: 1025
+  EMAIL_FROM_ADDRESS: ci@example.com
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      # Same image as docker-compose.yml and production.
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s
+          --health-retries 10
+      mailpit:
+        image: axllent/mailpit:v1.27
+        ports: ['1025:1025']
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # Version from `packageManager` in package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint, typecheck, formatting
+        run: pnpm check
+
+      - name: Generated files are up to date
+        run: |
+          pnpm generate:types
+          pnpm generate:importmap
+          git diff --exit-code -- src/payload-types.ts 'src/app/(payload)/admin/importMap.js' \
+            || { echo "::error::Run pnpm generate:types && pnpm generate:importmap and commit the result."; exit 1; }
+
+      # migrate:create compares the config against the last migration's snapshot.
+      # If it writes anything, a schema change was committed without its migration.
+      - name: No schema change is missing a migration
+        run: |
+          pnpm payload migrate:create ci-check --skip-empty
+          if [ -n "$(git status --porcelain -- src/migrations)" ]; then
+            echo "::error::The schema changed without a migration. Run pnpm payload migrate:create <name> and commit it."
+            git status --porcelain -- src/migrations
+            exit 1
+          fi
+
+      - name: Integration tests
+        run: pnpm test:int
+
+  e2e:
+    if: github.event_name == 'workflow_dispatch' && inputs.e2e
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s
+          --health-retries 10
+      mailpit:
+        image: axllent/mailpit:v1.27
+        ports: ['1025:1025']
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
