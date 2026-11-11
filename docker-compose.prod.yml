@@ -59,6 +59,12 @@ services:
       target: migrator
     restart: 'no'
     environment: *app-env
+    # The migrator image also runs the backup scripts (it has the sources and
+    # the Payload CLI), so it sees the uploads and a host folder for backups:
+    #   docker compose -f docker-compose.prod.yml run --rm migrate pnpm backup:create
+    volumes:
+      - media:/app/media
+      - ./backups:/app/backups
     logging: *logging
     depends_on:
       postgres:

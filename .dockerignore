@@ -4,6 +4,7 @@
 node_modules
 .next
 media
+backups
 
 .env*
 !.env.example

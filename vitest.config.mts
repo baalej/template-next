@@ -14,6 +14,8 @@ export default defineConfig({
           // Payload and database tests: plain Node, like the server they test.
           name: 'node',
           environment: 'node',
+          // These share one test database, so files run one at a time.
+          fileParallelism: false,
           include: ['tests/int/**/*.int.spec.ts'],
         },
       },

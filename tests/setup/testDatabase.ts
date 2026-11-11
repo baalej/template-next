@@ -1,4 +1,6 @@
 import { execFileSync } from 'node:child_process'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 
 import pg from 'pg'
 
@@ -18,10 +20,14 @@ export function testDatabaseUrl(databaseUrl = process.env.DATABASE_URL): string 
   return url.toString()
 }
 
-/** Points this process at the test database. Call before Payload is imported. */
+// Uploads made by tests go here, never into the project's media folder.
+export const testMediaDir = path.join(tmpdir(), 'template-next-test-media')
+
+/** Points this process at the test database and media dir. Call before Payload is imported. */
 export function pointAtTestDatabase(): string {
   const url = testDatabaseUrl()
   process.env.DATABASE_URL = url
+  process.env.MEDIA_DIR = testMediaDir
   return url
 }
 

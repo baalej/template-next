@@ -5,6 +5,11 @@
 # package.json on the same major, so local dev runs what production runs.
 FROM node:24-alpine AS base
 
+# pg_dump, pg_restore and psql for backups (src/lib/backup). Their major version
+# must match the Postgres server's (postgres:17-alpine in the compose files);
+# bump both together.
+RUN apk add --no-cache postgresql17-client
+
 # ─────────────────────────────────────────────────────────────
 # Dependencies
 # ─────────────────────────────────────────────────────────────

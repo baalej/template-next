@@ -47,6 +47,11 @@ export const env = {
     ? required('EMAIL_FROM_ADDRESS')
     : optional('EMAIL_FROM_ADDRESS', 'dev@localhost'),
   EMAIL_FROM_NAME: optional('EMAIL_FROM_NAME', 'Website'),
+
+  // Where Media stores uploaded files, relative to the working directory
+  // (/app in the container, where the `media` volume is mounted). Tests point
+  // it elsewhere so they never write into the dev uploads.
+  MEDIA_DIR: optional('MEDIA_DIR', 'media'),
 }
 
 if (missing.length > 0) {

@@ -68,6 +68,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Backup tests need client tools on the server's major version (see
+      # src/lib/backup/pgTools.ts); the runner image ships an older one.
+      - name: PostgreSQL 17 client
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-17 > /dev/null
+          echo "PG_BIN_DIR=/usr/lib/postgresql/17/bin" >> "$GITHUB_ENV"
+
       - name: Lint, typecheck, formatting
         run: pnpm check
 
@@ -120,6 +128,11 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: PostgreSQL 17 client
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-17 > /dev/null
+          echo "PG_BIN_DIR=/usr/lib/postgresql/17/bin" >> "$GITHUB_ENV"
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - uses: actions/upload-artifact@v4
