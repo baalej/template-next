@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics'
 import { CookieConsent, CookieSettingsButton } from '@/components/consent/CookieConsent'
+import { consentCopy } from '@/components/consent/copy'
 
 const GA_ID = 'G-TEST000000'
 
@@ -18,7 +19,7 @@ function renderSite() {
 }
 
 const click = (name: string) => fireEvent.click(screen.getByRole('button', { name }))
-const banner = () => screen.queryByRole('region', { name: 'Cookie consent' })
+const banner = () => screen.queryByRole('region', { name: consentCopy.region })
 const gaScript = () => document.querySelector('script[src*="googletagmanager.com/gtag/js"]')
 const trackingBlocked = () => window[`ga-disable-${GA_ID}`]
 
@@ -46,7 +47,7 @@ describe('cookie consent and analytics', () => {
 
   it('loads analytics on accept and remembers the answer', async () => {
     renderSite()
-    await act(async () => click('Accept'))
+    await act(async () => click(consentCopy.accept))
 
     expect(banner()).toBeNull()
     expect(gaScript()).not.toBeNull()
@@ -59,7 +60,7 @@ describe('cookie consent and analytics', () => {
 
   it('never loads analytics after a reject', async () => {
     renderSite()
-    await act(async () => click('Reject'))
+    await act(async () => click(consentCopy.reject))
 
     expect(banner()).toBeNull()
     expect(gaScript()).toBeNull()
@@ -68,17 +69,17 @@ describe('cookie consent and analytics', () => {
 
   it('keeps tracking while the visitor reconsiders, and resumes on a re-accept', async () => {
     renderSite()
-    await act(async () => click('Accept'))
+    await act(async () => click(consentCopy.accept))
 
-    await act(async () => click('Cookie settings'))
+    await act(async () => click(consentCopy.settings))
     expect(banner()).not.toBeNull()
     expect(trackingBlocked()).toBe(false)
 
-    await act(async () => click('Reject'))
+    await act(async () => click(consentCopy.reject))
     expect(trackingBlocked()).toBe(true)
 
-    await act(async () => click('Cookie settings'))
-    await act(async () => click('Accept'))
+    await act(async () => click(consentCopy.settings))
+    await act(async () => click(consentCopy.accept))
     expect(trackingBlocked()).toBe(false)
     expect(window.gtag).toHaveBeenLastCalledWith('consent', 'update', {
       analytics_storage: 'granted',
@@ -87,13 +88,13 @@ describe('cookie consent and analytics', () => {
 
   it('removes the analytics cookies when consent is withdrawn', async () => {
     renderSite()
-    await act(async () => click('Accept'))
+    await act(async () => click(consentCopy.accept))
     document.cookie = '_ga=GA1.1.123.456; path=/'
     document.cookie = `_ga_${GA_ID.slice(2)}=GS2.1.s1; path=/`
     document.cookie = 'unrelated=keep; path=/'
 
-    await act(async () => click('Cookie settings'))
-    await act(async () => click('Reject'))
+    await act(async () => click(consentCopy.settings))
+    await act(async () => click(consentCopy.reject))
 
     expect(document.cookie).toBe('unrelated=keep')
   })
