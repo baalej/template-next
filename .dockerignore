@@ -12,9 +12,18 @@ media
 Caddyfile
 docker-compose*.yml
 README.md
+AGENTS.md
+CLAUDE.md
 .claude
+.github
 .vscode
+
+# Tests and their configs travel together: the configs import from tests/, and
+# `next build` typechecks every file it's given.
 tests
+playwright.config.ts
+vitest.config.mts
+vitest.setup.ts
 test-results
 playwright-report
 coverage

@@ -1,6 +1,9 @@
-# Local development. Runs Postgres only — the app itself runs on the host with
-# `pnpm dev`, which keeps HMR fast and avoids cross-platform node_modules issues.
-# For the production stack see docker-compose.prod.yml.
+# Local development. Runs Postgres and Mailpit; the app itself runs on the host
+# with `pnpm dev`, which keeps HMR fast and avoids cross-platform node_modules
+# issues. For the production stack see docker-compose.prod.yml.
+#
+# Postgres is the same image and major version as production, so dumps, backups
+# and migrations behave identically in both.
 
 # Distinct from the production stack's project name so the two can never share
 # a volume if you ever run the prod compose file on this machine.
@@ -17,8 +20,10 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-PROJECT_NAME}
     ports:
       # Port is per-project so several stacks can run side by side.
-      # The script picks a free one and writes it to .env.
-      - '${POSTGRES_PORT:-5432}:5432'
+      # The script picks a free one and writes it to .env. Bound to localhost:
+      # with these trivial credentials it must not be reachable from the network
+      # (Docker's default, 0.0.0.0, also bypasses the macOS firewall).
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -26,6 +31,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  # Catches every email the app sends, over the same SMTP path production uses
+  # (src/env.ts defaults to it outside production). Read them at
+  # http://localhost:${MAILPIT_UI_PORT:-8025}. Ports are per-project for the
+  # same reason as Postgres'.
+  mailpit:
+    image: axllent/mailpit:v1.27
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025'
+      - '127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025'
 
 volumes:
   pgdata:
