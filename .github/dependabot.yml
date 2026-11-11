@@ -1,0 +1,41 @@
+# One grouped pull request per ecosystem per month, so updates stay reviewable
+# and each one costs a single CI run (see the note in workflows/ci.yml).
+#
+# Payload's packages must always move together, which the `payload` group
+# guarantees; after merging one, run `pnpm generate:types` and
+# `pnpm generate:importmap` if CI says the generated files changed.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    groups:
+      payload:
+        patterns: ['payload', '@payloadcms/*']
+      next-react:
+        patterns:
+          ['next', 'eslint-config-next', 'react', 'react-dom', '@types/react', '@types/react-dom']
+      everything-else:
+        patterns: ['*']
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
+
+  # Base image in the Dockerfile. Bumps here should keep .nvmrc and
+  # engines.node in package.json on the same Node major.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: monthly
+    ignore:
+      # Node majors are a deliberate, manual change (odd majors never become LTS).
+      - dependency-name: node
+        update-types: ['version-update:semver-major']
